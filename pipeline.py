@@ -1,8 +1,14 @@
 from celery import Celery
+from os import getenv
 
+import dotenv
 import time
 
-app = Celery('pipeline', broker='redis://localhost:6379/0', backend='redis://localhost:6379/0')
+dotenv.load_dotenv()
+
+broker = getenv('CELERY_BROKER')
+backend = getenv('CELERY_RESULT_BACKEND')
+app = Celery('pipeline', broker=broker, backend=backend)
 
 @app.task
 def ingest(fname: str):
