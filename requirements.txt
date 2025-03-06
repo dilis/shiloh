@@ -1,0 +1,13 @@
+fastapi[standard]
+dotenv
+pydantic-settings
+sqlmodel
+aiomysql
+pymysql
+psycopg2-binary
+cryptography
+greenlet
+celery
+redis
+pytest
+httpx
