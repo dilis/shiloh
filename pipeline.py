@@ -18,20 +18,15 @@ database_url = getenv('DATABASE_URL')
 
 app = Celery('pipeline', broker=broker, backend=backend)
 
-engine = create_engine(database_url, echo=True)
+engine = create_engine(database_url, echo=False)
 SQLModel.metadata.create_all(engine)
 
 def upsert_product(session, product_data):
-    # product = session.get(ProductModel, {"asin": product_data["asin"]})
     product = session.query(ProductModel).filter(ProductModel.asin == product_data["asin"]).first()
-    print('product:', product)
     if product:
-        print('====')
         product.brand = product_data["brand"]
         product.updated_at = product_data["updated_at"]
-        # session.merge(product)
     else:
-        print("+++++")
         product = ProductModel(**product_data)
         session.add(product)
         session.commit()
@@ -40,7 +35,6 @@ def upsert_product(session, product_data):
 @app.task
 def ingest(fname: str):
     print(f'Ingesting {fname}')
-    # time.sleep(5)
     with open(fname, 'r') as f:
         data = json.load(f)
     with Session(engine) as session:
