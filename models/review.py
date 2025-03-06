@@ -10,3 +10,4 @@ class ReviewModel(TimestampMixin, SQLModel, table=True):
     title: Optional[str] = Field(sa_column=Column(Text), default=None)
     description: Optional[str] = Field(sa_column=Column(Text), default=None)
     rating: int
+    status: Optional[str] = Field(sa_column=Column(Text), default=None)
