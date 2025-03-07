@@ -1,7 +1,13 @@
-from analyzer import ProductAnalyzer
+from review_analyzer.analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
-from models import InsightModel, ProductModel, PromptStatModel, ReviewModel, RunModel, SentimentModel
+# from models import InsightModel, ProductModel, PromptStatModel, ReviewModel, RunModel, SentimentModel
+from models.review import ReviewModel
+from models.insight import InsightModel
+from models.product import ProductModel
+from models.promptstat import PromptStatModel
+from models.run import RunModel
+from models.sentiment import SentimentModel
 from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
@@ -14,10 +20,12 @@ import time
 
 dotenv.load_dotenv()
 
-broker = getenv('CELERY_BROKER')
+broker = getenv('CELERY_BROKER_URL')
 backend = getenv('CELERY_RESULT_BACKEND')
 database_url = getenv('DATABASE_URL')
 openai_key = getenv('OPENAI_API_KEY')
+
+print(f'Broker: {broker}, backend: {backend}, database_url: {database_url}, openai_key: {openai_key}')
 
 app = Celery('pipeline', broker=broker, backend=backend)
 

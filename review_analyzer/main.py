@@ -1,4 +1,4 @@
-from pipeline import analyze, app, finalize_run, ingest
+from review_analyzer.pipeline import analyze, app, finalize_run, ingest
 
 import dotenv
 import glob
@@ -30,7 +30,7 @@ def call_analyze():
 celery_workers = []
 def start_workers(worker_count: int):
     for i in range(worker_count):
-        p = subprocess.Popen(['celery', '-A', 'pipeline', 'worker', '-l', 'info', '-n', f'worker.{i}', '--concurrency', '1'])
+        p = subprocess.Popen(['celery', '-A', 'review_analyzer.pipeline', 'worker', '-l', 'info', '-n', f'worker.{i}', '--concurrency', '1'])
         celery_workers.append(p)
 
 def stop_workers():
