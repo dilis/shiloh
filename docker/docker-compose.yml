@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ${PWD}/db:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2-bookworm
+    ports:
+      - "6379:6379"
+
+  review_analyzer:
+    image: review_analyzer:v1
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ../.env
+    volumes:
+      - ${PWD}/input_data:/app/data
