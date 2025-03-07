@@ -1,0 +1,12 @@
+fastapi[standard]
+openai
+dotenv
+pydantic-settings
+sqlmodel
+psycopg2-binary
+cryptography
+greenlet
+celery
+redis
+pytest
+httpx
