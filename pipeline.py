@@ -1,7 +1,7 @@
 from analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
-from models import InsightModel, ProductModel, PromptStatModel, ReviewModel, SentimentModel
+from models import InsightModel, ProductModel, PromptStatModel, ReviewModel, RunModel, SentimentModel
 from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
@@ -39,11 +39,15 @@ def upsert_product(session, product_data):
     return product.id
 
 @app.task
-def ingest(fname: str):
+def ingest(fname: str) -> int:
     print(f'Ingesting {fname}')
-    with open(fname, 'r') as f:
-        data = json.load(f)
     with Session(engine) as session:
+        run = RunModel(filename=fname)
+        session.add(run)
+        session.commit()
+        run_id = run.id
+        with open(fname, 'r') as f:
+            data = json.load(f)
         for rec in data:
             product_id = upsert_product(session, {
                 "asin": rec["CHILD_ASIN"],
@@ -62,7 +66,7 @@ def ingest(fname: str):
             )
             session.add(review_rec)
             session.commit()
-    return f'{fname}.ingested'
+    return run_id
 
 def select_and_update_review_status(session: Session):
     with session.begin():
@@ -110,3 +114,13 @@ def analyze():
             print(f'Analysis: {analysis}')
             review = select_and_update_review_status(session)
     return 'analysis.json'
+
+@app.task
+def finalize_run(run_id: int):
+    print(f'Finalizing run {run_id}')
+    with Session(engine) as session:
+        run = session.get(RunModel, run_id)
+        run.stopped_at = datetime.now()
+        session.add(run)
+        session.commit()
+    return run_id

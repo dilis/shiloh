@@ -1,4 +1,4 @@
-from pipeline import analyze, app, ingest
+from pipeline import analyze, app, finalize_run, ingest
 
 import dotenv
 import glob
@@ -52,8 +52,9 @@ def main():
             if files:
                 fname = files[0]
                 print(f'Processing {fname}')
-                ingest(fname)
+                run_id = ingest(fname)
                 call_analyze()
+                finalize_run(run_id)
                 # os.rename(fname, f'{fname}.processed')
                 break
             else:
