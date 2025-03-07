@@ -1,10 +1,12 @@
+from analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
 from models import ProductModel, ReviewModel
+from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
 # from sqlalchemy.dialects import mysql, postgresql, sqlite
-from sqlmodel import create_engine, Session, SQLModel
+from sqlmodel import create_engine, select, Session, SQLModel
 
 import dotenv
 import json
@@ -15,11 +17,15 @@ dotenv.load_dotenv()
 broker = getenv('CELERY_BROKER')
 backend = getenv('CELERY_RESULT_BACKEND')
 database_url = getenv('DATABASE_URL')
+openai_key = getenv('OPENAI_API_KEY')
 
 app = Celery('pipeline', broker=broker, backend=backend)
 
 engine = create_engine(database_url, echo=False)
 SQLModel.metadata.create_all(engine)
+
+# client = OpenAI(api_key=openai_key)
+analyzer = ProductAnalyzer(llm_client=OpenAI(api_key=openai_key))
 
 def upsert_product(session, product_data):
     product = session.query(ProductModel).filter(ProductModel.asin == product_data["asin"]).first()
@@ -58,8 +64,30 @@ def ingest(fname: str):
             session.commit()
     return f'{fname}.ingested'
 
+def select_and_update_review_status(session: Session):
+    with session.begin():
+        stmt = select(ReviewModel).where(ReviewModel.status == None).limit(1).with_for_update()
+        result = session.exec(stmt).first()
+        if result:
+            result.status = "pending"
+            session.add(result)
+            result_id = result.id
+            result = result.model_dump()
+            session.commit()
+            return result
+    return None
+
 @app.task
 def analyze():
     print('Analyzing data')
-    time.sleep(5)
+    # time.sleep(5)
+    with Session(engine) as session:
+        print('Session created')
+        review = select_and_update_review_status(session)
+        while review:
+            print(f'Analyzing review id: {review}')
+            # time.sleep(5)
+            analysis = analyzer.analyze_review(review)
+            print(f'Analysis: {analysis}')
+            review = select_and_update_review_status(session)
     return 'analysis.json'

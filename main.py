@@ -14,6 +14,17 @@ def call_analyze():
                 # call the analyze task of this worker
                 analyze.delay()
 
+        time.sleep(1)
+        active_workers = inspect.active()
+        print(f'Active workers: {active_workers.values()}')
+        print(all([len(tasks) == 0 for tasks in active_workers.values()]))
+        while not all([len(tasks) == 0 for tasks in active_workers.values()]):
+            time.sleep(1)
+            active_workers = inspect.active()
+            print(f'Active workers: {active_workers.values()}')
+            print(all([len(tasks) == 0 for tasks in active_workers.values()]))
+
+
 
 def main():
     # inspector = app.control.inspect()
@@ -27,6 +38,7 @@ def main():
             ingest(fname)
             call_analyze()
             # os.rename(fname, f'{fname}.processed')
+            break
         else:
             time.sleep(1)
 
