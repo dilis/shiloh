@@ -1,7 +1,7 @@
 from analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
-from models import ProductModel, ReviewModel, SentimentModel
+from models import InsightModel, ProductModel, ReviewModel, SentimentModel
 from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
@@ -90,6 +90,11 @@ def analyze():
                 sentiment=analysis["sentiment"]
             )
             session.add(sentiment)
+            if analysis["actionable_insights"]:
+                session.add(InsightModel(
+                    review_id=review["id"],
+                    insights=analysis["actionable_insights"]
+                ))
             session.commit()
             print(f'Analysis: {analysis}')
             review = select_and_update_review_status(session)
