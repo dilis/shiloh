@@ -16,15 +16,6 @@ The core objective is to move beyond basic review aggregation, delivering nuance
 The system is comprised of 5 components:
 
 1. **Review Analyzer**  
-- This component is responsible for for processing raw review data.
-- Implements the core data pipeline which consists of 3 stages:
-  - Ingestion: Raw data is taken in and do minor cleanup of data.
-  - Analysis: Each review is submitted to LLM for analysis and the result is stored in the database.
-  - Finalization: Closes the run record.
-- Implemented using `Celery` to enable asynchronous and parallel processing of large volume of reviews.
-- Currently, the workers run inside the container. However, they should be able to run externally as separate containers or on other hosts, making this highly scaleable
-
-1. **Review Analyzer**  
 The Review Analyzer component serves as the core data processing engine for the Amazon Product Intelligence system. It orchestrates the ingestion, analysis, and finalization of raw review data, implementing a robust data pipeline.
 
 - **Data Pipeline**:
@@ -35,3 +26,29 @@ The Review Analyzer component serves as the core data processing engine for the 
   - The component leverages `Celery`, a distributed task queue, to enable asynchronous and parallel processing of review data. This architecture facilitates efficient handling of large review volumes, significantly reducing processing latency.
 - **Scalability**:
   - Currently, Celery workers are deployed within the same containerized environment as the Review Analyzer. To enhance scalability and resilience, future deployments may transition to a distributed worker architecture. At its current state, it is expected that minimal to no modification is required to do so. This will allow workers to operate as independent containers or on separate hosts, enabling horizontal scaling and improved resource utilization. This will enable the system to handle dramatically larger workloads.
+
+2. **API Layer**
+The API Layer provides ReSTFUL endpoints to fetch a single product insight or a list of products.
+- Implemented with `FastAPI`
+  - Automatic documentation
+  - Asynchronous operation
+  - Nice developer experience
+- ORM is provided by `SQLModel`/`SQLAlchemy` tandem
+
+3. **Database (Postgres)**
+This provides data persistence
+
+4. **Message Queue/Broker for Celery (Redis)**
+This allows Celery workers to communicate and coordinate each other. It also facilitates the transfer of results to requesting process.
+
+Let's refine that to be more informative and technically accurate:
+
+4. **Message Queue/Broker for Celery (Redis)**
+Redis serves as the message queue/broker for `Celery`, enabling efficient and reliable communication and coordination between Celery worker processes. Specifically:
+
+- **Task Distribution and Coordination**:
+Redis facilitates the distribution of tasks from the Review Analyzer to available Celery workers.
+It enables workers to coordinate their activities, ensuring that tasks are processed in the correct order and preventing conflicts.
+- **Asynchronous Result Transfer**:
+Redis enables the asynchronous transfer of task results from worker processes to the requesting process or designated storage.
+This decoupling of task execution and result retrieval improves the responsiveness of the overall system.
