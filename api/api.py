@@ -8,7 +8,7 @@ from typing import Optional, List, Dict
 from pydantic import BaseModel
 from models import ProductModel, ProductInsightModel
 
-engine = AsyncEngine(create_engine(url=config.DATABASE_URL))
+engine = AsyncEngine(create_engine(url=config.API_DATABASE_URL))
 
 async def create_views():
     product_insight_view = """
