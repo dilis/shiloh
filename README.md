@@ -13,4 +13,13 @@ The core objective is to move beyond basic review aggregation, delivering nuance
 
 ![System Design](images/AmazonProductIntelligence.drawio.png)
 
-The system is composed of 5 components:
+The system is comprised of 5 components:
+
+1. **Review Analyzer**  
+- This component is responsible for for processing raw review data.
+- Implements the core data pipeline which consists of 3 stages:
+  - Ingestion: Raw data is taken in and do minor cleanup of data.
+  - Analysis: Each review is submitted to LLM for analysis and the result is stored in the database.
+  - Finalization: Closes the run record.
+- Implemented using `Celery` to enable asynchronous and parallel processing of large volume of reviews.
+- Currently, the workers run inside the container. However, they should be able to run externally as separate containers or on other hosts, making this highly scaleable
