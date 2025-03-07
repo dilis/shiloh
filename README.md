@@ -99,6 +99,55 @@ To test, you can point your browser to `http://localhost:8000`. Examples:
 
 To test `review_analyzer` you can put the JSON file in `input_data`. Please note that after processing, the file will be deleted (this behavior may need to be changed in the future).
 
+### Deploying manually
+
+Note: You may want to run this under `virtualenv`
+
+1. Install the required packages for `review_analyzer`:
+
+```
+pip install -r review_analyzer/requirements.txt
+```
+
+2. Install the required packages for `api`:
+
+```
+pip install -r api/requirements.txt
+```
+
+3. Start `db` and `redis` from `docker-compose`:
+
+```
+docker compose -f docker/docker-compose up -d db redis
+```
+
+4. Create `.env` (please see the associated `env.example` which already contains correct settings, excep `OPENAI_API_KEY` which you need to supply manually). Note that because of time constraint, I was not able to unify `DATABASE_URL` and `API_DATABASE_URL`. The latter is used by `api_api` container, the former by `review_analyzer`. Note that when running this way, DB and redis addresses must be change to `localhost` from `db` and `redis`.
+
+5. Define `PYTHONAPP` environment variable:
+
+```
+PYTHONAPP=${PWD}
+```
+
+6. Run `review_analyzer`:
+
+```
+python review_analyzer/main.py
+```
+
+7. Open another terminal, and do define `PYTHONAPP` agin, and run `api`:
+
+```
+fastapi dev api/api.py
+```
+
+To test, you can point your browser to `http://localhost:8000`. Examples:
+
+1. http://localhost:8000/api/v1/products/B002UEQMIS/insights
+2. http://localhost:8000/api/v1/products?page=2&page_size=10
+
+To test `review_analyzer` you can put the JSON file in `data`. Please note that after processing, the file will be deleted (this behavior may need to be changed in the future).
+
 ## Key Decisions and Trade-Offs
 
 1. Employing `Celery` is one of the key decisions in this project. Unlike the default concurrency mechanism of `asyncio` which is to multithread, it allowed horizontal scalability out-of-the-box. In this implementation, the workers are all in the same container, but even without changing the code, the workers can be readily migrated to other hosts. This is particularly beneficial in a clustered environment (e.g., k8s clusters). The trade-off is the additional overhead (e.g., the need for message queue/broker), but it's easily out-weighed by benefits.  Please note, though, that over scaling is also a problem since services like OpenAI's have rate-limiter that could be easily hit with just a handful of workers.
