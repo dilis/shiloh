@@ -47,3 +47,15 @@ It enables workers to coordinate their activities, ensuring that tasks are proce
 - **Asynchronous Result Transfer**:
 Redis enables the asynchronous transfer of task results from worker processes to the requesting process or designated storage.
 This decoupling of task execution and result retrieval improves the responsiveness of the overall system.
+
+**5. Large Language Model (LLM) Integration (OpenAI/ChatGPT)**  
+This forms the core analytical engine for this project. Its integration enables sophisticated natural language processing for accurate sentiment analysis and insightful data extraction.
+
+- **Advanced Review Analysis**:
+The LLM performs in-depth analysis of customer reviews, going beyond simple keyword matching to understand the nuanced meaning and context of the text.
+It accurately determines customer sentiment, identifying positive, negative, and neutral tones, as well as specific emotional expressions.
+- **Insight Generation**:
+The LLM extracts relevant insights from review data, including:
+Identification of key product features and attributes mentioned by customers.
+Detection of recurring themes and patterns in customer feedback.
+Generation of summaries and actionable recommendations based on the analysis.
