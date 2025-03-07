@@ -46,7 +46,10 @@ async def get_product_insights(product_id: str):
         stmt = select(ProductInsightModel).where(ProductInsightModel.asin == product_id)
         result = await session.execute(stmt)
         product = result.scalar_one_or_none()
-        print(product)
+
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    print(product)
     return product.model_dump()
 
 @app.get("/api/v1/products")
@@ -55,4 +58,9 @@ async def get_products(page: int = 1, page_size: int = 50):
     Get all products with pagination
     """
     # TODO: Implement product listing
-    return []
+    # get 1 page of products
+    async with AsyncSession(engine) as session:
+        stmt = select(ProductModel).limit(page_size).offset((page - 1) * page_size)
+        result = await session.execute(stmt)
+        products = result.scalars().all()
+    return [product.model_dump() for product in products]
