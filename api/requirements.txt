@@ -1,0 +1,9 @@
+fastapi[standard]
+dotenv
+pydantic-settings
+sqlmodel
+asyncpg
+cryptography
+greenlet
+pytest
+httpx
