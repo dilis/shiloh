@@ -1,5 +1,7 @@
 # Amazon Product Intelligence
 
+## Introduction
+
 This project is designed to provide comprehensive analysis of customer reviews from Amazon product listings. Using Large Language Models (LLMs), the system extracts sentiment and actionable insights to facilitate data-driven product development and strategic decision-making.
 
 The core objective is to move beyond basic review aggregation, delivering nuanced understanding of customer feedback. This is achieved through:
