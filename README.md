@@ -59,3 +59,17 @@ The LLM extracts relevant insights from review data, including:
 Identification of key product features and attributes mentioned by customers.
 Detection of recurring themes and patterns in customer feedback.
 Generation of summaries and actionable recommendations based on the analysis.
+
+## Key Decisions and Trade-Offs
+
+1. Employing `Celery` is one of the key decisions in this project. Unlike the default concurrency mechanism of `asyncio` which is to multithread, it allowed horizontal scalability out-of-the-box. In this implementation, the workers are all in the same container, but even without changing the code, the workers can be readily migrated to other hosts. This is particularly beneficial in a clustered environment (e.g., k8s clusters). The trade-off is the additional overhead (e.g., the need for message queue/broker), but it's easily out-weighed by benefits.  Please note, though, that over scaling is also a problem since services like OpenAI's have rate-limiter that could be easily hit with just a handful of workers.
+
+2. The use of Postgres is also another key decision. Postgres is durable and known to degrade gracefully. Processing customer reviews will potentially entail managing huge volume of data. With PG, the limit is farther than the alternative. I also particularly like the advance data types it provides (e.g., JSONB). With these, PG can be used like NoSQL databases (which is beneficial in some use cases).
+
+3. The system's current batch processing of reviews, rather than real-time analysis, presents a potential limitation. However, this approach is often forced-upon by several factors: firstly, the latency involved in retrieving data from external sources; and secondly, the constraints imposed by Large Language Model (LLM) providers, including cost considerations and rate-limiting. Consequently, while real-time processing might be conceptually desirable, practical implementation is often infeasible due to these inherent constraints.
+
+## Future Improvements
+
+1. GraphQL is, in my opinion, is etter the better approach in this use case since the data composition/schema usually varies. With ReSTFUL approach, the number of end-points could grow to unmanageable levels.
+
+2. Investigate the cost benefits of deploying own LLM. Just like other managed services, which usually cost more than managing own resources, OpenAI _may_ be costing more than just hosting/deploying own LLM.
