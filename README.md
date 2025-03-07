@@ -39,11 +39,6 @@ The API Layer provides ReSTFUL endpoints to fetch a single product insight or a 
 This provides data persistence
 
 4. **Message Queue/Broker for Celery (Redis)**
-This allows Celery workers to communicate and coordinate each other. It also facilitates the transfer of results to requesting process.
-
-Let's refine that to be more informative and technically accurate:
-
-4. **Message Queue/Broker for Celery (Redis)**
 Redis serves as the message queue/broker for `Celery`, enabling efficient and reliable communication and coordination between Celery worker processes. Specifically:
 
 - **Task Distribution and Coordination**:
