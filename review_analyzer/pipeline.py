@@ -32,7 +32,6 @@ app = Celery('pipeline', broker=broker, backend=backend)
 engine = create_engine(database_url, echo=False)
 SQLModel.metadata.create_all(engine)
 
-# client = OpenAI(api_key=openai_key)
 analyzer = ProductAnalyzer(llm_client=OpenAI(api_key=openai_key))
 
 def upsert_product(session, product_data):

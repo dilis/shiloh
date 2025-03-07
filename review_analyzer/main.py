@@ -48,7 +48,6 @@ def main():
     try:
         while True:
             files = glob.glob('data/*.json')
-            # files = []
             if files:
                 fname = files[0]
                 print(f'Processing {fname}')
@@ -56,7 +55,7 @@ def main():
                 call_analyze()
                 finalize_run(run_id)
                 # os.rename(fname, f'{fname}.processed')
-                break
+                os.remove(fname)
             else:
                 time.sleep(1)
     finally:
