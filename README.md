@@ -8,3 +8,9 @@ The core objective is to move beyond basic review aggregation, delivering nuance
 
 - _Sentiment Extraction_: Identifying and quantifying the emotional tone of customer reviews, encompassing positive, negative, and neutral sentiments, as well as specific emotional states (e.g., satisfaction, frustration).
 - _Actionable Insight Generation_: Deriving practical, business-relevant insights from review content, including feature-specific feedback, trend identification, and potential product improvement recommendations.
+
+## System Design
+
+![System Design](images/AmazonProductIntelligence.drawio.png)
+
+The system is composed of 5 components:
