@@ -1,7 +1,7 @@
 from analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
-from models import ProductModel, ReviewModel
+from models import ProductModel, ReviewModel, SentimentModel
 from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
@@ -71,7 +71,6 @@ def select_and_update_review_status(session: Session):
         if result:
             result.status = "pending"
             session.add(result)
-            result_id = result.id
             result = result.model_dump()
             session.commit()
             return result
@@ -80,14 +79,18 @@ def select_and_update_review_status(session: Session):
 @app.task
 def analyze():
     print('Analyzing data')
-    # time.sleep(5)
     with Session(engine) as session:
         print('Session created')
         review = select_and_update_review_status(session)
         while review:
             print(f'Analyzing review id: {review}')
-            # time.sleep(5)
             analysis = analyzer.analyze_review(review)
+            sentiment = SentimentModel(
+                review_id=review["id"],
+                sentiment=analysis["sentiment"]
+            )
+            session.add(sentiment)
+            session.commit()
             print(f'Analysis: {analysis}')
             review = select_and_update_review_status(session)
     return 'analysis.json'
