@@ -8,6 +8,6 @@ class PromptStatModel(TimestampMixin, SQLModel, table=True):
     language: str
     chat_id: str
     model: str
-    prompt_tokens: int
-    response_tokens: int
+    prompt_token_count: int
+    response_token_count: int
     response_time: float

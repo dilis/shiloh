@@ -102,8 +102,8 @@ def analyze():
                 chat_id=analysis["chat_id"],
                 language=analysis["language"],
                 model=analysis["model"],
-                prompt_tokens=analysis["prompt_token_count"],
-                response_tokens=analysis["response_token_count"],
+                prompt_token_count=analysis["prompt_token_count"],
+                response_token_count=analysis["response_token_count"],
                 response_time=elapsed
             ))
             session.commit()
