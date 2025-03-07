@@ -7,6 +7,11 @@ services:
       POSTGRES_DB: mydb
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - ${PWD}/db:/var/lib/postgresql/data
 
@@ -24,3 +29,13 @@ services:
       - ../.env
     volumes:
       - ${PWD}/input_data:/app/data
+
+  api:
+    image: api_api:v1
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
