@@ -3,6 +3,7 @@ openai
 dotenv
 pydantic-settings
 sqlmodel
+asyncpg
 aiomysql
 pymysql
 psycopg2-binary
