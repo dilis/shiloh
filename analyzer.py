@@ -33,4 +33,9 @@ The output should be in plain JSON with no display/printing formatting and with 
             messages=[{"role": "user", "content": prompt}],
             temperature=0
         )
-        return json.loads(response.choices[0].message.content)
+        resp_json = json.loads(response.choices[0].message.content)
+        resp_json["chat_id"] = response.id
+        resp_json["prompt_token_count"] = response.usage.prompt_tokens
+        resp_json["response_token_count"] = response.usage.completion_tokens
+        resp_json["model"] = response.model
+        return resp_json

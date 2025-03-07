@@ -1,7 +1,7 @@
 from analyzer import ProductAnalyzer
 from celery import Celery
 from datetime import datetime
-from models import InsightModel, ProductModel, ReviewModel, SentimentModel
+from models import InsightModel, ProductModel, PromptStatModel, ReviewModel, SentimentModel
 from openai import OpenAI
 from os import getenv
 from sqlalchemy import text
@@ -84,7 +84,9 @@ def analyze():
         review = select_and_update_review_status(session)
         while review:
             print(f'Analyzing review id: {review}')
+            start_time = time.perf_counter()
             analysis = analyzer.analyze_review(review)
+            elapsed = time.perf_counter() - start_time
             sentiment = SentimentModel(
                 review_id=review["id"],
                 sentiment=analysis["sentiment"]
@@ -95,6 +97,15 @@ def analyze():
                     review_id=review["id"],
                     insights=analysis["actionable_insights"]
                 ))
+            session.add(PromptStatModel(
+                review_id=review["id"],
+                chat_id=analysis["chat_id"],
+                language=analysis["language"],
+                model=analysis["model"],
+                prompt_tokens=analysis["prompt_token_count"],
+                response_tokens=analysis["response_token_count"],
+                response_time=elapsed
+            ))
             session.commit()
             print(f'Analysis: {analysis}')
             review = select_and_update_review_status(session)
