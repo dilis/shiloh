@@ -12,16 +12,21 @@ engine = AsyncEngine(create_engine(url=config.API_DATABASE_URL))
 
 async def create_views():
     product_insight_view = """
-    create or replace view product_insights as
-    select
+CREATE OR REPLACE VIEW product_insights AS
+    SELECT
         p.id,
-        asin,
-        brand,
-        (select count(*) from reviews where product_id = p.id) reviews,
-        (select count(*) from sentiments where sentiment = 'positive' and review_id in (select id from reviews where product_id = p.id)) positives,
-        (select count(*) from sentiments where sentiment = 'negative' and review_id in (select id from reviews where product_id = p.id)) negatives,
-        (select count(*) from sentiments where sentiment = 'neutral' and review_id in (select id from reviews where product_id = p.id)) neutrals
-    from products p;
+        p.asin,
+        p.brand,
+        (SELECT COUNT(*) FROM reviews WHERE product_id = p.id) AS reviews,
+        (SELECT COUNT(*) FROM sentiments WHERE sentiment = 'positive' AND review_id IN (SELECT id FROM reviews WHERE product_id = p.id)) AS positives,
+        (SELECT COUNT(*) FROM sentiments WHERE sentiment = 'negative' AND review_id IN (SELECT id FROM reviews WHERE product_id = p.id)) AS negatives,
+        (SELECT COUNT(*) FROM sentiments WHERE sentiment = 'neutral' AND review_id IN (SELECT id FROM reviews WHERE product_id = p.id)) AS neutrals,
+        (SELECT jsonb_agg(element) FROM (
+            SELECT jsonb_array_elements_text(insights) AS element
+            FROM insights
+            WHERE review_id IN (SELECT id FROM reviews WHERE product_id = p.id)
+        ) AS elements) AS insights
+    FROM products p;
 """
 
     async with engine.begin() as conn:
@@ -59,6 +64,7 @@ async def get_products(page: int = 1, page_size: int = 50):
     """
     # TODO: Implement product listing
     # get 1 page of products
+    print(f'page: {page}, page_size: {page_size}')
     async with AsyncSession(engine) as session:
         stmt = select(ProductModel).limit(page_size).offset((page - 1) * page_size)
         result = await session.execute(stmt)
