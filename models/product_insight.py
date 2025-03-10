@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel
 
-class ProductInsightModel(SQLModel, table=True):
+class ProductInsightModel(SQLModel, table=False):
     __tablename__ = "product_insights"
     id: int = Field(primary_key=True)
     asin: str
